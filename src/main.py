@@ -1,3 +1,4 @@
+from time import time
 import hashlib
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -5,6 +6,7 @@ from pydrive.drive import GoogleDrive
 
 KEE_PASS_FILE = 'MasterKeePassDatabase.kdbx'
 HASH_FILE = 'keepass_hash.txt'
+GOOGLE_AUTH_CREDENTIALS_FILE = 'google_auth_credentials.json'
 
 
 def hash_file(path=KEE_PASS_FILE, block_size=65536):
@@ -18,14 +20,24 @@ def hash_file(path=KEE_PASS_FILE, block_size=65536):
 
 
 def upload_to_drive():
-    print('Need to upload')
     g_login = GoogleAuth()
-    g_login.LocalWebserverAuth()
+    g_login.LoadCredentialsFile(GOOGLE_AUTH_CREDENTIALS_FILE)
+    if g_login.credentials is None:
+        with open(f'log_{time()}.txt', 'a') as fout:
+            fout.write('No Credentials!\n')
+        raise Exception('No Credentials!')
+    elif g_login.access_token_expired:
+        with open(f'log_{time()}.txt', 'a') as fout:
+            fout.write('Trying to refresh\n')
+            g_login.Refresh()
+            fout.write('Tried refreshing')
     drive = GoogleDrive(g_login)
 
     file_drive = drive.CreateFile({'title': KEE_PASS_FILE})
     file_drive.SetContentFile(KEE_PASS_FILE)
     file_drive.Upload()
+    with open(f'log_{time()}.txt', 'a') as fout:
+        fout.write('Upload completed')
 
 
 def main():

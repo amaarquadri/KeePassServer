@@ -1,4 +1,6 @@
 .idea/
 venv/
+*__pycache__*
 *.kdbx
 src/client_secrets.json
+src/google_auth_credentials.json
