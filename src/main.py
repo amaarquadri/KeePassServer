@@ -23,21 +23,21 @@ def upload_to_drive():
     g_login = GoogleAuth()
     g_login.LoadCredentialsFile(GOOGLE_AUTH_CREDENTIALS_FILE)
     if g_login.credentials is None:
-        with open(f'log_{time()}.txt', 'a') as fout:
+        with open('log.txt', 'a') as fout:
             fout.write('No Credentials!\n')
-        raise Exception('No Credentials!')
+        raise Exception('No Credentials!\n')
     elif g_login.access_token_expired:
-        with open(f'log_{time()}.txt', 'a') as fout:
+        with open('log.txt', 'a') as fout:
             fout.write('Trying to refresh\n')
             g_login.Refresh()
-            fout.write('Tried refreshing')
+            fout.write('Tried refreshing\n')
     drive = GoogleDrive(g_login)
 
     file_drive = drive.CreateFile({'title': KEE_PASS_FILE})
     file_drive.SetContentFile(KEE_PASS_FILE)
     file_drive.Upload()
-    with open(f'log_{time()}.txt', 'a') as fout:
-        fout.write('Upload completed')
+    with open('log.txt', 'a') as fout:
+        fout.write('Upload completed\n')
 
 
 def main():
@@ -49,6 +49,9 @@ def main():
         upload_to_drive()
         with open(HASH_FILE, 'w') as fout:
             fout.write(new_hash)
+    else:
+        with open('log.txt', 'a') as fout:
+            fout.write('No change\n')
 
 
 if __name__ == '__main__':
