@@ -5,4 +5,5 @@ venv/
 src/client_secrets.json
 src/google_auth_credentials.json
 src/google_drive_config.json
+src/kee_pass_hash.txt
 src/log.txt

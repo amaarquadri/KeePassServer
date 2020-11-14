@@ -8,7 +8,7 @@ from pydrive.drive import GoogleDrive
 
 FOLDER = '/home/amaar/KeePassServer/src/'
 KEE_PASS_FILE = FOLDER + 'MasterKeePassDatabase.kdbx'
-HASH_FILE = FOLDER + 'keepass_hash.txt'
+HASH_FILE = FOLDER + 'kee_pass_hash.txt'
 GOOGLE_AUTH_CREDENTIALS_FILE = FOLDER + 'google_auth_credentials.json'
 GOOGLE_DRIVE_CONFIG_FILE = FOLDER + 'google_drive_config.json'
 LOG_FILE = FOLDER + 'log.txt'
