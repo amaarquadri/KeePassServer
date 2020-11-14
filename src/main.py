@@ -1,17 +1,19 @@
 #!/home/amaar/KeePassServer/venv/bin/python
 import os
+from datetime import datetime
+from pathlib import Path
 import json
 import hashlib
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
 
-FOLDER = '/home/amaar/KeePassServer/src/'
-KEE_PASS_FILE = FOLDER + 'MasterKeePassDatabase.kdbx'
-HASH_FILE = FOLDER + 'kee_pass_hash.txt'
-GOOGLE_AUTH_CREDENTIALS_FILE = FOLDER + 'google_auth_credentials.json'
-GOOGLE_DRIVE_CONFIG_FILE = FOLDER + 'google_drive_config.json'
-LOG_FILE = FOLDER + 'log.txt'
+FOLDER = Path(__file__).parent.absolute()
+KEE_PASS_FILE = os.path.join(FOLDER, 'MasterKeePassDatabase.kdbx')
+HASH_FILE = os.path.join(FOLDER, 'kee_pass_hash.txt')
+GOOGLE_AUTH_CREDENTIALS_FILE = os.path.join(FOLDER, 'google_auth_credentials.json')
+GOOGLE_DRIVE_CONFIG_FILE = os.path.join(FOLDER, 'google_drive_config.json')
+LOG_FILE = os.path.join(FOLDER, 'log.txt')
 
 
 def hash_file(path=KEE_PASS_FILE, block_size=65536):
@@ -29,12 +31,12 @@ def upload_to_drive():
     g_login.LoadCredentialsFile(GOOGLE_AUTH_CREDENTIALS_FILE)
     if g_login.credentials is None:
         with open(LOG_FILE, 'a') as fout:
-            fout.write('No Credentials!\n')
+            fout.write(f'{datetime.now()} - No Credentials!\n')
         raise Exception('No Credentials!\n')
     elif g_login.access_token_expired:
         with open(LOG_FILE, 'a') as fout:
             g_login.Refresh()
-            fout.write('Refreshed Credentials\n')
+            fout.write(f'{datetime.now()} - Refreshed Credentials\n')
     drive = GoogleDrive(g_login)
 
     with open(GOOGLE_DRIVE_CONFIG_FILE, 'r') as fin:
@@ -43,7 +45,7 @@ def upload_to_drive():
     file_drive.SetContentFile(KEE_PASS_FILE)
     file_drive.Upload()
     with open(LOG_FILE, 'a') as fout:
-        fout.write('Upload completed\n')
+        fout.write(f'{datetime.now()} - Upload completed\n')
 
 
 def main():
@@ -58,9 +60,6 @@ def main():
         upload_to_drive()
         with open(HASH_FILE, 'w') as fout:
             fout.write(new_hash)
-    else:
-        with open(LOG_FILE, 'a') as fout:
-            fout.write('No change\n')
 
 
 if __name__ == '__main__':
