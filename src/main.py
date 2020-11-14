@@ -1,4 +1,5 @@
-from time import time
+import os
+import json
 import hashlib
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -7,6 +8,7 @@ from pydrive.drive import GoogleDrive
 KEE_PASS_FILE = 'MasterKeePassDatabase.kdbx'
 HASH_FILE = 'keepass_hash.txt'
 GOOGLE_AUTH_CREDENTIALS_FILE = 'google_auth_credentials.json'
+GOOGLE_DRIVE_CONFIG_FILE = 'google_drive_config.json'
 
 
 def hash_file(path=KEE_PASS_FILE, block_size=65536):
@@ -28,12 +30,13 @@ def upload_to_drive():
         raise Exception('No Credentials!\n')
     elif g_login.access_token_expired:
         with open('log.txt', 'a') as fout:
-            fout.write('Trying to refresh\n')
             g_login.Refresh()
-            fout.write('Tried refreshing\n')
+            fout.write('Refreshed Credentials\n')
     drive = GoogleDrive(g_login)
 
-    file_drive = drive.CreateFile({'title': KEE_PASS_FILE})
+    with open(GOOGLE_DRIVE_CONFIG_FILE, 'r') as fin:
+        config = json.load(fin)
+    file_drive = drive.CreateFile({'id': config['kee_pass_file_id']})
     file_drive.SetContentFile(KEE_PASS_FILE)
     file_drive.Upload()
     with open('log.txt', 'a') as fout:
@@ -41,8 +44,11 @@ def upload_to_drive():
 
 
 def main():
-    with open(HASH_FILE, 'r') as fin:
-        current_hash = fin.read()
+    if os.path.isfile(HASH_FILE):
+        with open(HASH_FILE, 'r') as fin:
+            current_hash = fin.read()
+    else:
+        current_hash = ""
     new_hash = hash_file()
 
     if new_hash != current_hash:
