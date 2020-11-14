@@ -4,4 +4,5 @@ venv/
 *.kdbx
 src/client_secrets.json
 src/google_auth_credentials.json
+src/google_drive_config.json
 src/log.txt
