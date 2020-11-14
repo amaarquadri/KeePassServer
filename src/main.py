@@ -1,3 +1,4 @@
+#!/home/amaar/KeePassServer/venv/bin/python
 import os
 import json
 import hashlib
@@ -5,10 +6,12 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
 
-KEE_PASS_FILE = 'MasterKeePassDatabase.kdbx'
-HASH_FILE = 'keepass_hash.txt'
-GOOGLE_AUTH_CREDENTIALS_FILE = 'google_auth_credentials.json'
-GOOGLE_DRIVE_CONFIG_FILE = 'google_drive_config.json'
+FOLDER = '/home/amaar/KeePassServer/src/'
+KEE_PASS_FILE = FOLDER + 'MasterKeePassDatabase.kdbx'
+HASH_FILE = FOLDER + 'keepass_hash.txt'
+GOOGLE_AUTH_CREDENTIALS_FILE = FOLDER + 'google_auth_credentials.json'
+GOOGLE_DRIVE_CONFIG_FILE = FOLDER + 'google_drive_config.json'
+LOG_FILE = FOLDER + 'log.txt'
 
 
 def hash_file(path=KEE_PASS_FILE, block_size=65536):
@@ -25,11 +28,11 @@ def upload_to_drive():
     g_login = GoogleAuth()
     g_login.LoadCredentialsFile(GOOGLE_AUTH_CREDENTIALS_FILE)
     if g_login.credentials is None:
-        with open('log.txt', 'a') as fout:
+        with open(LOG_FILE, 'a') as fout:
             fout.write('No Credentials!\n')
         raise Exception('No Credentials!\n')
     elif g_login.access_token_expired:
-        with open('log.txt', 'a') as fout:
+        with open(LOG_FILE, 'a') as fout:
             g_login.Refresh()
             fout.write('Refreshed Credentials\n')
     drive = GoogleDrive(g_login)
@@ -39,7 +42,7 @@ def upload_to_drive():
     file_drive = drive.CreateFile({'id': config['kee_pass_file_id']})
     file_drive.SetContentFile(KEE_PASS_FILE)
     file_drive.Upload()
-    with open('log.txt', 'a') as fout:
+    with open(LOG_FILE, 'a') as fout:
         fout.write('Upload completed\n')
 
 
@@ -56,7 +59,7 @@ def main():
         with open(HASH_FILE, 'w') as fout:
             fout.write(new_hash)
     else:
-        with open('log.txt', 'a') as fout:
+        with open(LOG_FILE, 'a') as fout:
             fout.write('No change\n')
 
 
